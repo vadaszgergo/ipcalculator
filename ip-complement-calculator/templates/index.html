@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Calculator with Complement IP ranges</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result-section {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>IP Calculator with Complement IP ranges</h1>
+    
+    <form id="calculator-form">
+        <label for="cidr">Enter CIDR notations (one per line):</label><br>
+        <textarea id="cidr" name="cidr" required placeholder="e.g.&#10;192.168.1.0/24&#10;10.0.0.0/8"></textarea>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div id="results" style="display: none;">
+        <div class="result-section">
+            <h2>Subnet Information</h2>
+            <table id="subnetsTable">
+                <thead>
+                    <tr>
+                        <th>CIDR</th>
+                        <th>First IP</th>
+                        <th>Last IP</th>
+                        <th>Total Hosts</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="result-section">
+            <h2>Combined Complement Ranges</h2>
+            <div id="complementary">
+                <table id="complementaryTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>CIDR Ranges</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <script>
+        document.getElementById('calculator-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const cidrInput = document.getElementById('cidr').value
+        .split('\n') // Split input by lines
+        .map(line => line.trim()) // Remove extra spaces
+        .filter(line => line.length > 0); // Exclude empty lines
+
+    const resultsDiv = document.getElementById('results');
+    const errorDiv = document.getElementById('error');
+
+    try {
+        // Debug input data
+        console.log("Sending data to backend:", cidrInput);
+
+        const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cidrs: cidrInput }) // Send JSON payload
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'block';
+
+            // Debug response data
+            console.log("Response from backend:", data);
+
+            // Update subnets table
+            const subnetsTable = document.getElementById('subnetsTable');
+            const subnetsBody = subnetsTable.querySelector('tbody');
+            subnetsBody.innerHTML = '';
+            if (Array.isArray(data.subnets)) {
+                data.subnets.forEach(subnet => {
+                    const row = subnetsBody.insertRow();
+                    row.insertCell().textContent = subnet.cidr;
+                    row.insertCell().textContent = subnet.firstIP;
+                    row.insertCell().textContent = subnet.lastIP;
+                    row.insertCell().textContent = subnet.totalHosts;
+                });
+            } else {
+                subnetsBody.innerHTML = '<tr><td colspan="4">No subnets returned.</td></tr>';
+            }
+
+            // Update complementary ranges
+            const complementaryDiv = document.getElementById('complementary');
+            const complementaryTable = document.getElementById('complementaryTable');
+            const tableBody = complementaryTable.querySelector('tbody');
+            if (Array.isArray(data.complementary) && data.complementary.length > 0) {
+                tableBody.innerHTML = '';
+                data.complementary.forEach(range => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = range;
+                });
+                complementaryTable.style.display = 'table';
+            } else {
+                complementaryTable.style.display = 'none';
+                complementaryDiv.innerHTML = '<p>No complementary ranges available.</p>';
+            }
+        } else {
+            throw new Error(data.error || 'Unexpected error occurred.');
+        }
+    } catch (error) {
+        console.error("Frontend Error:", error.message);
+
+        resultsDiv.style.display = 'none';
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = error.message || 'An error occurred.';
+            }
+        });
+    </script>
+</body>
+</html>
