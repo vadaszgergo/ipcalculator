@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, url_for
 import ipaddress
 from typing import List, Set, Union
 import traceback
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # Import all functions from both original applications
 def calculate_subnet(cidr):
