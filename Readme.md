@@ -43,7 +43,7 @@ cd [directory name]
 docker build -t yourapplicationname .
 
 # Run the local docker image
-docker run -p 8080:5000 yourapplicationname
+docker run -p 5000:5000 yourapplicationname
 ```
 
 3. Running without the source code, pulling from docker hub
