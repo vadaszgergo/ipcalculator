@@ -151,6 +151,94 @@ def consolidate_ips(ip_list: List[str]) -> List[str]:
     except Exception:
         return []
 
+def format_binary_ip(ip: int) -> str:
+    """Format IP address in binary with dots between octets."""
+    binary = format(ip, '032b')
+    return f"{binary[:8]}.{binary[8:16]}.{binary[16:24]}.{binary[24:]}"
+
+def get_ip_class(ip: ipaddress.IPv4Address) -> str:
+    """Determine IP address class and type."""
+    first_octet = int(ip) >> 24
+    if first_octet >= 240:
+        ip_class = 'E'
+    elif first_octet >= 224:
+        ip_class = 'D'
+    elif first_octet >= 192:
+        ip_class = 'C'
+    elif first_octet >= 128:
+        ip_class = 'B'
+    else:
+        ip_class = 'A'
+    
+    # Check if private
+    if ip.is_private:
+        return f"Class {ip_class}, Private Internet"
+    return f"Class {ip_class}, Public Internet"
+
+def calculate_network_details(cidr: str) -> dict:
+    """Calculate detailed network information similar to ipcalc."""
+    try:
+        network = ipaddress.ip_network(cidr, strict=False)
+        netmask = network.netmask
+        wildcard = network.hostmask
+        
+        # For /31 networks (point-to-point)
+        if network.prefixlen == 31:
+            hostmin = network[0]
+            hostmax = network[1]
+            hosts = 2
+        # For /32 networks (single host)
+        elif network.prefixlen == 32:
+            hostmin = hostmax = network.network_address
+            hosts = 1
+        # For normal networks
+        else:
+            hostmin = network[1]
+            hostmax = network[-2]
+            hosts = network.num_addresses - 2
+
+        return {
+            'success': True,
+            'details': {
+                'address': {
+                    'ip': str(network.network_address),
+                    'binary': format_binary_ip(int(network.network_address))
+                },
+                'netmask': {
+                    'ip': str(netmask),
+                    'binary': format_binary_ip(int(netmask)),
+                    'cidr': network.prefixlen
+                },
+                'wildcard': {
+                    'ip': str(wildcard),
+                    'binary': format_binary_ip(int(wildcard))
+                },
+                'network': {
+                    'ip': str(network),
+                    'binary': format_binary_ip(int(network.network_address))
+                },
+                'hostmin': {
+                    'ip': str(hostmin),
+                    'binary': format_binary_ip(int(hostmin))
+                },
+                'hostmax': {
+                    'ip': str(hostmax),
+                    'binary': format_binary_ip(int(hostmax))
+                },
+                'broadcast': {
+                    'ip': str(network.broadcast_address),
+                    'binary': format_binary_ip(int(network.broadcast_address))
+                },
+                'hosts': hosts,
+                'class': get_ip_class(network.network_address)
+            }
+        }
+    except ValueError as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -225,6 +313,18 @@ def consolidate():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/calculate-network', methods=['POST'])
+def calculate_network():
+    cidr = request.form.get('cidr', '').strip()
+    if not cidr:
+        return jsonify({'error': 'CIDR notation required'}), 400
+    
+    result = calculate_network_details(cidr)
+    if not result['success']:
+        return jsonify({'error': result['error']}), 400
+        
+    return jsonify(result['details'])
 
 if __name__ == '__main__':
     app.run(debug=True) 
