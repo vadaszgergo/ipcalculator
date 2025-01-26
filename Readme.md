@@ -4,6 +4,10 @@ A Python application suite to perform various IP address-related calculations.
 
 
 ## Features
+**Standard IP calculator:**
+
+A similar tool like the command line ipcalc. It gives you details about subnet, netmask, host min and max, etc.
+
 **IP complement calculator:**
 
 Once given various IP ranges (`10.0.0.0/24`, `130.10.0.0/16`, `192.168.1.1/32`) the application calculates what are all other IP ranges which are not part of the given ranges. Example would be for `0.0.0.0/1` complement range would be `128.0.0.0/1`.
