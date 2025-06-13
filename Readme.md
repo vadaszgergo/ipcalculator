@@ -17,6 +17,8 @@ Once given various IP ranges (`10.0.0.0/24`, `130.10.0.0/16`, `192.168.1.1/32`) 
 
 Once given various single IP addresses (`10.1.1.0`, `10.1.1.1`, `10.1.1.2`, `10.1.1.3`) the application calculates the biggest subnet range, that contains all given ip addresses, in this example it would result in `10.1.1.0/30`.
 
+Update: the application now support CIDR ranges as well. 
+
 
 ### Installation
 

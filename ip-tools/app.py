@@ -98,14 +98,22 @@ def calculate_combined_complementary_ranges(cidrs: List[str]) -> List[str]:
         return []
 
 def consolidate_ips(ip_list: List[str]) -> List[str]:
-    """Consolidate IP addresses into CIDR ranges using ipaddress module."""
+    """Consolidate IP addresses and CIDR ranges into the most efficient CIDR representation."""
     try:
-        # Convert IPs to integers and remove duplicates
+        # Convert IPs and CIDRs to integers and remove duplicates
         ip_integers = set()
-        for ip_str in ip_list:
+        for item in ip_list:
             try:
-                ip = ipaddress.ip_address(ip_str.strip())
-                ip_integers.add(int(ip))
+                # Try to parse as CIDR first
+                if '/' in item:
+                    network = ipaddress.ip_network(item.strip(), strict=False)
+                    # Add all IPs in the network
+                    for ip in network:
+                        ip_integers.add(int(ip))
+                else:
+                    # Parse as individual IP
+                    ip = ipaddress.ip_address(item.strip())
+                    ip_integers.add(int(ip))
             except ValueError:
                 continue
 
