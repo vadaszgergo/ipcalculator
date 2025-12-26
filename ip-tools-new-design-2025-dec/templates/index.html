@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>IP Tools Suite</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-accents"></div>
+
+    <header class="top-bar">
+        <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="brand">
+                <div class="brand-mark">IP</div>
+                <div>
+                    <div class="eyebrow">IP Tools Suite</div>
+                    <div class="brand-title">Calculators for Network Engineers</div>
+                </div>
+            </div>
+            <div class="top-actions">
+                <a href="https://gergovadasz.hu" target="_blank" class="ghost-btn">
+                    <i class="fas fa-globe"></i>
+                    Cloud &amp; Networking Blog
+                </a>
+                <button id="theme-toggle" class="ghost-btn" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <div class="hero-copy">
+                <div class="pill">New in 2026</div>
+                <h1>Faster network math, prettier output.</h1>
+                <p class="lede">
+                    Calculate, consolidate, and complete IPv4 ranges with interactive insights, binary visuals, and copy-ready payloads built for modern NetOps.
+                </p>
+                <div class="hero-actions">
+                    <a href="#calculator" class="cta primary" data-tab="#calculator"><i class="fas fa-wave-square"></i> Network calculator</a>
+                    <a href="#complement" class="cta ghost" data-tab="#complement"><i class="fas fa-code-branch"></i> Complement ranges</a>
+                    <a href="#consolidate" class="cta ghost" data-tab="#consolidate"><i class="fas fa-compress-arrows-alt"></i> Consolidate lists</a>
+                </div>
+                <div class="hero-meta">
+                    <div class="meta-card">
+                        <span class="meta-label">Binary + CIDR</span>
+                        <strong>Human + machine friendly outputs</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span class="meta-label">Copy UX</span>
+                        <strong>Row-level and bulk copy chips</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span class="meta-label">Mobile ready</span>
+                        <strong>Sticky actions, compact grid</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="glass-card">
+                    <div class="glass-header">
+                        <span class="dot red"></span>
+                        <span class="dot amber"></span>
+                        <span class="dot green"></span>
+                        <span class="window-title">ipv4 / cidr lab</span>
+                    </div>
+                    <div class="glass-body">
+                        <div class="chip-row">
+                            <span class="chip success">Public &amp; private</span>
+                            <span class="chip muted">Class A-E</span>
+                            <span class="chip accent">Binary view</span>
+                        </div>
+                        <div class="mini-table">
+                            <div class="mini-row">
+                                <span>Address</span>
+                                <span>10.0.0.0</span>
+                            </div>
+                            <div class="mini-row">
+                                <span>Netmask</span>
+                                <span>255.0.0.0 /8</span>
+                            </div>
+                            <div class="mini-row">
+                                <span>Host range</span>
+                                <span>10.0.0.1 - 10.255.255.254</span>
+                            </div>
+                            <div class="mini-row">
+                                <span>Hosts</span>
+                                <span>16,777,214</span>
+                            </div>
+                        </div>
+                        <div class="callout">
+                            Binary lanes ready to copy or screenshot — perfect for change tickets.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container tool-shell">
+            <div class="tab-wrapper">
+                <div class="tab-title">
+                    <div>
+                        <p class="eyebrow">Toolset</p>
+                        <h2>Pick a mode</h2>
+                    </div>
+                    <div class="tab-note">All modes are live-refresh with copyable results.</div>
+                </div>
+                <ul class="nav nav-tabs custom-tabs" id="toolTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="calculator-tab" data-bs-toggle="tab" href="#calculator" role="tab">
+                            <div class="tab-content-wrapper">
+                                <i class="fas fa-wave-square"></i>
+                                <span>Network Calculator</span>
+                            </div>
+                            <small>Binary, hostmin/max, class</small>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="complement-tab" data-bs-toggle="tab" href="#complement" role="tab">
+                            <div class="tab-content-wrapper">
+                                <i class="fas fa-code-branch"></i>
+                                <span>Complement Finder</span>
+                            </div>
+                            <small>See what is not covered</small>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="consolidate-tab" data-bs-toggle="tab" href="#consolidate" role="tab">
+                            <div class="tab-content-wrapper">
+                                <i class="fas fa-compress-arrows-alt"></i>
+                                <span>Range Consolidator</span>
+                            </div>
+                            <small>Compress IP lists</small>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="toolTabsContent">
+                <!-- IP Calculator Tab -->
+                <div class="tab-pane fade show active" id="calculator" role="tabpanel">
+                    <div class="tool-content">
+                        <div class="tool-header">
+                            <div>
+                                <p class="eyebrow">Analysis</p>
+                                <h3><i class="fas fa-bolt"></i> Network Calculator</h3>
+                                <p>Binary and decimal breakdown with host ranges, broadcast, and class detection.</p>
+                            </div>
+                            <button class="pill secondary" id="network-sample">Use sample</button>
+                        </div>
+                        
+                        <form id="network-calculator-form" class="calculation-form">
+                            <div class="form-section">
+                                <div class="input-group-custom">
+                                    <label for="network-cidr" class="form-label">
+                                        <i class="fas fa-sitemap"></i> CIDR Notation
+                                    </label>
+                                    <input type="text" class="form-control custom-input" id="network-cidr" name="cidr" 
+                                           placeholder="e.g., 192.168.1.0/24" required>
+                                    <div class="input-hint">
+                                        Works with single IPs (/32) and point-to-point (/31) too.
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-calculate" type="submit">
+                                    <i class="fas fa-play"></i>
+                                    <span>Calculate</span>
+                                    <div class="btn-loading">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="network-results" class="results-section" style="display: none;">
+                            <div class="results-header">
+                                <h4><i class="fas fa-chart-line"></i> Network Analysis</h4>
+                                <button class="pill tertiary copy-btn" data-clipboard-target="#network-results" aria-label="Copy results">Copy</button>
+                            </div>
+                            <div class="result-grid">
+                                <div class="result-card">
+                                    <div class="label">Address</div>
+                                    <div class="value primary-value" id="address-ip"></div>
+                                    <div class="binary-value" id="address-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">Netmask</div>
+                                    <div class="value primary-value"><span id="netmask-ip"></span> <span class="cidr-badge" id="netmask-cidr"></span></div>
+                                    <div class="binary-value" id="netmask-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">Wildcard</div>
+                                    <div class="value primary-value" id="wildcard-ip"></div>
+                                    <div class="binary-value" id="wildcard-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">Network</div>
+                                    <div class="value primary-value" id="network-ip"></div>
+                                    <div class="binary-value" id="network-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">HostMin</div>
+                                    <div class="value primary-value" id="hostmin-ip"></div>
+                                    <div class="binary-value" id="hostmin-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">HostMax</div>
+                                    <div class="value primary-value" id="hostmax-ip"></div>
+                                    <div class="binary-value" id="hostmax-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">Broadcast</div>
+                                    <div class="value primary-value" id="broadcast-ip"></div>
+                                    <div class="binary-value" id="broadcast-binary"></div>
+                                </div>
+                                <div class="result-card">
+                                    <div class="label">Hosts/Net</div>
+                                    <div class="value hosts-count" id="hosts"></div>
+                                    <div class="class-info" id="ip-class"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Complement Calculator Tab -->
+                <div class="tab-pane fade" id="complement" role="tabpanel">
+                    <div class="tool-content">
+                        <div class="tool-header">
+                            <div>
+                                <p class="eyebrow">Diffing</p>
+                                <h3><i class="fas fa-code-branch"></i> Complement Calculator</h3>
+                                <p>Paste CIDRs and discover the remaining address space.</p>
+                            </div>
+                            <button class="pill secondary" id="complement-sample">Use sample</button>
+                        </div>
+                        
+                        <form id="calculator-form" class="calculation-form">
+                            <div class="form-section">
+                                <div class="input-group-custom">
+                                    <label for="cidr" class="form-label">
+                                        <i class="fas fa-list"></i> CIDR Ranges
+                                    </label>
+                                    <textarea class="form-control custom-textarea" id="cidr" name="cidr" rows="4" required 
+                                            placeholder="Enter CIDR notations, one per line:&#10;192.168.1.0/24&#10;10.0.0.0/8&#10;172.16.0.0/12"></textarea>
+                                    <div class="input-hint">
+                                        Example: complement of 0.0.0.0/2 includes 64.0.0.0/2 and 128.0.0.0/1.
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-calculate" type="submit">
+                                    <i class="fas fa-play"></i>
+                                    <span>Calculate</span>
+                                    <div class="btn-loading">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="complement-results" class="results-section" style="display: none;">
+                            <div class="results-header">
+                                <h4><i class="fas fa-info-circle"></i> Input Subnets</h4>
+                            </div>
+                            <div class="table-container">
+                                <table class="table table-modern">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-sitemap"></i> CIDR</th>
+                                            <th><i class="fas fa-play"></i> First IP</th>
+                                            <th><i class="fas fa-stop"></i> Last IP</th>
+                                            <th><i class="fas fa-users"></i> Total Hosts</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="subnets-body"></tbody>
+                                </table>
+                            </div>
+
+                            <div class="results-header mt-4">
+                                <h4><i class="fas fa-puzzle-piece"></i> Complementary Ranges</h4>
+                                <button class="pill tertiary copy-btn" data-clipboard-target="#ranges-list">Copy</button>
+                            </div>
+                            <div class="complement-ranges">
+                                <div class="ranges-header">
+                                    <span class="ranges-label">
+                                        <i class="fas fa-code-branch"></i> CIDR Blocks not covered
+                                    </span>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-target="#ranges-list">
+                                        <i class="fas fa-copy"></i> Copy All
+                                    </button>
+                                </div>
+                                <div id="ranges-list" class="ranges-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Range Consolidator Tab -->
+                <div class="tab-pane fade" id="consolidate" role="tabpanel">
+                    <div class="tool-content">
+                        <div class="tool-header">
+                            <div>
+                                <p class="eyebrow">Optimization</p>
+                                <h3><i class="fas fa-compress-arrows-alt"></i> IP Range Consolidator</h3>
+                                <p>Collapse noisy IP lists into compact CIDR ranges.</p>
+                            </div>
+                            <button class="pill secondary" id="consolidate-sample">Use sample</button>
+                        </div>
+                        
+                        <form id="upload-form" class="calculation-form">
+                            <div class="input-method-tabs">
+                                <ul class="nav nav-pills custom-pills" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-input" type="button" role="tab">
+                                            <i class="fas fa-keyboard"></i> Manual Input
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-input" type="button" role="tab">
+                                            <i class="fas fa-file-upload"></i> File Upload
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="manual-input" role="tabpanel">
+                                    <div class="input-content">
+                                        <div class="input-group-custom">
+                                            <label for="ip-list" class="form-label">
+                                                <i class="fas fa-list"></i> IP Address List
+                                            </label>
+                                            <textarea class="form-control custom-textarea" id="ip-list" name="ip-list" rows="6" 
+                                                    placeholder="Enter IP addresses, one per line:&#10;10.0.0.0&#10;10.0.0.1&#10;10.0.0.2&#10;192.168.0.0/24&#10;192.168.1.0/24"></textarea>
+                                            <div class="input-hint">
+                                                Consecutive IPs like 10.0.0.0-10.0.0.31 will be combined into 10.0.0.0/27.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="file-input" role="tabpanel">
+                                    <div class="input-content">
+                                        <div class="file-upload-section">
+                                            <div class="file-upload-area" onclick="document.getElementById('file').click();">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <h5>Upload IP Address File</h5>
+                                                <p>Click here or drag and drop a .txt file with IP addresses (one per line)</p>
+                                                <input type="file" class="form-control" id="file" name="file" accept=".txt">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button class="btn btn-primary btn-calculate" type="submit">
+                                    <i class="fas fa-play"></i>
+                                    <span>Consolidate</span>
+                                    <div class="btn-loading">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                </button>
+                                
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="download-option" name="download" value="true">
+                                    <label class="form-check-label" for="download-option">
+                                        <i class="fas fa-download"></i> Download as file
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="consolidate-results" class="results-section" style="display: none;">
+                            <div class="consolidation-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-list"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="original-count">0</div>
+                                        <div class="stat-label">Original IPs</div>
+                                    </div>
+                                </div>
+                                <div class="stat-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="stat-card efficiency">
+                                    <div class="stat-icon success">
+                                        <i class="fas fa-compress-arrows-alt"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="ranges-count">0</div>
+                                        <div class="stat-label">Optimized Ranges</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="results-header">
+                                <h4><i class="fas fa-sitemap"></i> Consolidated CIDR Ranges</h4>
+                                <button class="pill tertiary copy-btn" data-clipboard-target="#consolidated-ranges-content">Copy</button>
+                            </div>
+                            <div class="consolidated-ranges">
+                                <div class="ranges-header">
+                                    <span class="ranges-label">
+                                        <i class="fas fa-code-branch"></i> Optimized IP Ranges
+                                    </span>
+                                    <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-target="#consolidated-ranges-content">
+                                        <i class="fas fa-copy"></i> Copy All
+                                    </button>
+                                </div>
+                                <div id="consolidated-ranges-content" class="ranges-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-alert" class="alert alert-danger mt-3" style="display: none;"></div>
+            <div id="toast" class="toast-shell" aria-live="assertive" aria-atomic="true"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="footer-links">
+                <span>Gergo Vadasz</span>
+                <span class="dot-sep">•</span>
+                <span>Built for NetOps &amp; SRE</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Clipboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+    <script>
+        // Initialize clipboard.js
+        new ClipboardJS('.copy-btn');
+
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 1200);
+            });
+        });
+
+        function setFormLoading(formId, isLoading) {
+            const form = document.getElementById(formId);
+            const button = form.querySelector('.btn-calculate');
+            const span = button.querySelector('span');
+            const loading = button.querySelector('.btn-loading');
+            
+            if (isLoading) {
+                button.disabled = true;
+                span.style.opacity = '0';
+                loading.style.display = 'flex';
+            } else {
+                button.disabled = false;
+                span.style.opacity = '1';
+                loading.style.display = 'none';
+            }
+        }
+
+        function formatGroupedNumber(value) {
+            return Number(value).toLocaleString('en').replace(/,/g, ' ');
+        }
+
+        function showToast(message, tone = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast-shell show ${tone}`;
+            setTimeout(() => toast.className = 'toast-shell', 2400);
+        }
+
+        document.getElementById('network-sample').addEventListener('click', () => {
+            document.getElementById('network-cidr').value = '192.168.50.0/24';
+            showToast('Sample loaded for network calculator', 'success');
+        });
+        document.getElementById('complement-sample').addEventListener('click', () => {
+            document.getElementById('cidr').value = ['0.0.0.0/2', '64.0.0.0/3', '128.0.0.0/3'].join('\n');
+            showToast('Sample ranges ready', 'success');
+        });
+        document.getElementById('consolidate-sample').addEventListener('click', () => {
+            document.getElementById('ip-list').value = [
+                '10.0.0.0',
+                '10.0.0.1',
+                '10.0.0.2',
+                '10.0.0.3',
+                '10.0.0.4',
+                '192.168.0.0/24',
+                '192.168.1.0/24'
+            ].join('\n');
+            showToast('Sample IP list loaded', 'success');
+        });
+
+        document.getElementById('calculator-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('complement-results');
+            const errorDiv = document.getElementById('error-alert');
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                setFormLoading('calculator-form', true);
+
+                const response = await fetch('/calculate-complement', {
+                    method: 'POST',
+                    body: form
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const tbody = document.getElementById('subnets-body');
+                tbody.innerHTML = '';
+                data.subnets.forEach(subnet => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="primary-value">${subnet.cidr}</span></td>
+                            <td><span class="primary-value">${subnet.firstIP}</span></td>
+                            <td><span class="primary-value">${subnet.lastIP}</span></td>
+                            <td><span class="hosts-count">${formatGroupedNumber(subnet.totalHosts)}</span></td>
+                        </tr>
+                    `;
+                });
+
+                const rangesList = document.getElementById('ranges-list');
+                if (data.complementary.length > 0) {
+                    rangesList.innerHTML = data.complementary.map((range) => 
+                        `<div class="range-item">${range.cidr}</div>`
+                    ).join('');
+                } else {
+                    rangesList.innerHTML = '<div class="no-ranges">No complementary ranges found</div>';
+                }
+
+                resultsDiv.style.display = 'block';
+                showToast('Complement calculated', 'success');
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                showToast(error.message, 'error');
+            } finally {
+                setFormLoading('calculator-form', false);
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('consolidate-results');
+            const errorDiv = document.getElementById('error-alert');
+            const downloadOption = document.getElementById('download-option').checked;
+            const ipList = document.getElementById('ip-list').value;
+            const file = document.getElementById('file').files[0];
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                setFormLoading('upload-form', true);
+
+                form.delete('file');
+                form.delete('ip-list');
+
+                if (ipList.trim()) {
+                    form.append('ip-list', ipList);
+                } else if (file) {
+                    form.append('file', file);
+                } else {
+                    throw new Error('Please either enter IP addresses or upload a file');
+                }
+
+                const response = await fetch('/consolidate', {
+                    method: 'POST',
+                    body: form
+                });
+
+                if (downloadOption) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'consolidated_ranges.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showToast('Download generated', 'success');
+                } else {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error);
+
+                    document.getElementById('original-count').textContent = data.original_count;
+                    document.getElementById('ranges-count').textContent = data.ranges_count;
+
+                    const rangesContent = document.getElementById('consolidated-ranges-content');
+                    if (data.ranges.length > 0) {
+                        rangesContent.innerHTML = data.ranges.map((range) => 
+                            `<div class="range-item">${range}</div>`
+                        ).join('');
+                    } else {
+                        rangesContent.innerHTML = '<div class="no-ranges">No ranges to display</div>';
+                    }
+                    
+                    resultsDiv.style.display = 'block';
+                    showToast('Ranges consolidated', 'success');
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                showToast(error.message, 'error');
+            } finally {
+                setFormLoading('upload-form', false);
+            }
+        });
+
+        document.getElementById('network-calculator-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('network-results');
+            const errorDiv = document.getElementById('error-alert');
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                setFormLoading('network-calculator-form', true);
+
+                const response = await fetch('/calculate-network', {
+                    method: 'POST',
+                    body: form
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                ['address', 'netmask', 'wildcard', 'network', 'hostmin', 'hostmax', 'broadcast'].forEach(field => {
+                    document.getElementById(`${field}-ip`).textContent = data[field].ip;
+                    document.getElementById(`${field}-binary`).textContent = data[field].binary;
+                });
+
+                document.getElementById('netmask-cidr').textContent = '/' + data.netmask.cidr;
+                document.getElementById('hosts').textContent = data.hosts.toLocaleString();
+                document.getElementById('ip-class').textContent = data.class;
+
+                resultsDiv.style.display = 'block';
+                showToast('Network calculated', 'success');
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                showToast(error.message, 'error');
+            } finally {
+                setFormLoading('network-calculator-form', false);
+            }
+        });
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+                themeToggle.title = 'Switch to light mode';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeToggle.title = 'Switch to dark mode';
+            }
+        }
+
+        const fileUploadArea = document.querySelector('.file-upload-area');
+        const fileInput = document.getElementById('file');
+
+        if (fileUploadArea && fileInput) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.remove('dragover'), false);
+            });
+
+            fileUploadArea.addEventListener('drop', handleDrop, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+        }
+
+        // Hero CTA tab activation + smooth scroll
+        const ctaLinks = document.querySelectorAll('.hero-actions .cta[data-tab]');
+        const toolShell = document.querySelector('.tool-shell');
+
+        ctaLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetTab = link.getAttribute('data-tab');
+                const tabLink = document.querySelector(`.nav-link[href="${targetTab}"]`);
+                if (tabLink && window.bootstrap) {
+                    window.bootstrap.Tab.getOrCreateInstance(tabLink).show();
+                }
+                if (toolShell) {
+                    toolShell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // Update active visual state
+                ctaLinks.forEach(btn => btn.classList.remove('primary'));
+                ctaLinks.forEach(btn => btn.classList.add('ghost'));
+                link.classList.remove('ghost');
+                link.classList.add('primary');
+            });
+        });
+    </script>
+</body>
+</html>

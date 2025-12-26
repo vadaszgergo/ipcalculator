@@ -186,17 +186,14 @@ def get_ip_class(ip: ipaddress.IPv4Address) -> str:
 def calculate_network_details(cidr: str) -> dict:
     """Calculate detailed network information similar to ipcalc."""
     try:
-        # Extract the original IP address from the input string
+        # Determine if input is a single IP or a network
         if '/' in cidr:
-            original_ip_str = cidr.split('/')[0].strip()
+            network = ipaddress.ip_network(cidr, strict=False)
+            input_ip = ipaddress.ip_address(cidr.split('/')[0].strip())
         else:
-            original_ip_str = cidr.strip()
-        try:
-            original_ip = ipaddress.ip_address(original_ip_str)
-        except ValueError:
-            original_ip = None
-
-        network = ipaddress.ip_network(cidr, strict=False)
+            # Single IP, treat as /32 network
+            network = ipaddress.ip_network(f"{cidr.strip()}/32", strict=False)
+            input_ip = ipaddress.ip_address(cidr.strip())
         netmask = network.netmask
         wildcard = network.hostmask
         
@@ -219,8 +216,8 @@ def calculate_network_details(cidr: str) -> dict:
             'success': True,
             'details': {
                 'address': {
-                    'ip': str(original_ip) if original_ip else str(network.network_address),
-                    'binary': format_binary_ip(int(original_ip)) if original_ip else format_binary_ip(int(network.network_address))
+                    'ip': str(input_ip),
+                    'binary': format_binary_ip(int(input_ip))
                 },
                 'netmask': {
                     'ip': str(netmask),
@@ -232,7 +229,7 @@ def calculate_network_details(cidr: str) -> dict:
                     'binary': format_binary_ip(int(wildcard))
                 },
                 'network': {
-                    'ip': str(network),
+                    'ip': str(network.network_address),
                     'binary': format_binary_ip(int(network.network_address))
                 },
                 'hostmin': {
@@ -248,7 +245,7 @@ def calculate_network_details(cidr: str) -> dict:
                     'binary': format_binary_ip(int(network.broadcast_address))
                 },
                 'hosts': hosts,
-                'class': get_ip_class(network.network_address)
+                'class': get_ip_class(input_ip)
             }
         }
     except ValueError as e:
@@ -345,4 +342,4 @@ def calculate_network():
     return jsonify(result['details'])
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)

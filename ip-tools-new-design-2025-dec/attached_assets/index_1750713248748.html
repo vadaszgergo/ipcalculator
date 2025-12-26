@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>IP Tools Suite</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .tool-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+        }
+        .result-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .loading-spinner {
+            display: none;
+        }
+        .table {
+            background-color: white;
+        }
+        .copy-btn {
+            cursor: pointer;
+        }
+        .tooltip {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="text-center mb-4">IP Tools Suite</h1>
+        
+        <div class="tool-container">
+            <ul class="nav nav-tabs" id="toolTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="calculator-tab" data-bs-toggle="tab" href="#calculator" role="tab">
+                        <i class="fas fa-network-wired"></i> IP Calculator
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="complement-tab" data-bs-toggle="tab" href="#complement" role="tab">
+                        <i class="fas fa-calculator"></i> IP Complement Calculator
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="consolidate-tab" data-bs-toggle="tab" href="#consolidate" role="tab">
+                        <i class="fas fa-compress-arrows-alt"></i> IP Range Consolidator
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="toolTabsContent">
+                <!-- IP Calculator Tab -->
+                <div class="tab-pane fade show active" id="calculator" role="tabpanel">
+                    <form id="network-calculator-form">
+                        <div class="alert alert-info mb-3">
+                            <p class="mb-2">Use this tool to calculate detailed network information for an IP range.</p>
+                            <p class="mb-0">Enter an IP address with CIDR notation (e.g., 192.168.1.0/24)</p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="network-cidr" class="form-label">Enter CIDR notation:</label>
+                            <input type="text" class="form-control" id="network-cidr" name="cidr" 
+                                   placeholder="e.g., 192.168.1.0/24" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-calculator"></i> Calculate
+                        </button>
+                    </form>
+
+                    <div id="network-results" class="result-section" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 120px">Address:</th>
+                                        <td class="font-monospace">
+                                            <span id="address-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="address-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Netmask:</th>
+                                        <td class="font-monospace">
+                                            <span id="netmask-ip"></span> = <span id="netmask-cidr"></span>
+                                            <br>
+                                            <small class="text-muted" id="netmask-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Wildcard:</th>
+                                        <td class="font-monospace">
+                                            <span id="wildcard-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="wildcard-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Network:</th>
+                                        <td class="font-monospace">
+                                            <span id="network-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="network-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>HostMin:</th>
+                                        <td class="font-monospace">
+                                            <span id="hostmin-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="hostmin-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>HostMax:</th>
+                                        <td class="font-monospace">
+                                            <span id="hostmax-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="hostmax-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Broadcast:</th>
+                                        <td class="font-monospace">
+                                            <span id="broadcast-ip"></span>
+                                            <br>
+                                            <small class="text-muted" id="broadcast-binary"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Hosts/Net:</th>
+                                        <td class="font-monospace">
+                                            <span id="hosts"></span>
+                                            <br>
+                                            <small class="text-muted" id="ip-class"></small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Complement Calculator Tab -->
+                <div class="tab-pane fade" id="complement" role="tabpanel">
+                    <form id="calculator-form">
+                        <div class="alert alert-info mb-3">
+                            <p class="mb-2">Use this tool to find out what are the complement IP ranges of given IP ranges.</p>
+                            <p class="mb-0">For example: complement ranges of 0.0.0.0/2 are 64.0.0.0/2 and 128.0.0.0/1</p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cidr" class="form-label">Enter CIDR notations (one per line):</label>
+                            <textarea class="form-control" id="cidr" name="cidr" rows="4" required 
+                                    placeholder="e.g.&#10;192.168.1.0/24&#10;10.0.0.0/8"></textarea>
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-calculator"></i> Calculate
+                        </button>
+                    </form>
+
+                    <div id="complement-results" class="result-section" style="display: none;">
+                        <h4>Subnet Information</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>CIDR</th>
+                                        <th>First IP</th>
+                                        <th>Last IP</th>
+                                        <th>Total Hosts</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subnets-body"></tbody>
+                            </table>
+                        </div>
+
+                        <h4 class="mt-4">Complementary Ranges</h4>
+                        <div id="complementary-ranges" class="p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">CIDR Ranges:</span>
+                                <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-target="#ranges-list">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <div id="ranges-list" class="font-monospace"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Range Consolidator Tab -->
+                <div class="tab-pane fade" id="consolidate" role="tabpanel">
+                    <form id="upload-form">
+                        <div class="alert alert-info mb-3">
+                            <p class="mb-2">Use this tool to find out summarized IP ranges from a given list of IP addresses or CIDR ranges.</p>
+                            <p class="mb-0">If IPs are next to each other, they will be combined into bigger IP ranges.<br>
+                            For example: a list of IPs from 10.0.0.0 through 10.0.0.31 will be combined into 10.0.0.0/27</p>
+                        </div>
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-input" type="button" role="tab">
+                                    <i class="fas fa-keyboard"></i> Manual Input
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-input" type="button" role="tab">
+                                    <i class="fas fa-file-upload"></i> File Upload
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="manual-input" role="tabpanel">
+                                <div class="mb-3">
+                                    <label for="ip-list" class="form-label">Enter IP addresses (one per line):</label>
+                                    <textarea class="form-control" id="ip-list" name="ip-list" rows="6" 
+                                            placeholder="e.g.&#10;10.0.0.0&#10;10.0.0.1&#10;10.0.0.2&#10;192.168.0.0/24&#10;192.168.1.0/24"></textarea>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="file-input" role="tabpanel">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Upload a file containing IP addresses (one per line):</label>
+                                    <input type="file" class="form-control" id="file" name="file" accept=".txt">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="download-option" name="download" value="true">
+                            <label class="form-check-label" for="download-option">Download results as file</label>
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-compress-arrows-alt"></i> Consolidate
+                        </button>
+                    </form>
+
+                    <div id="consolidate-results" class="result-section" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4>Results</h4>
+                            <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-target="#consolidated-ranges">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div id="consolidate-stats" class="alert alert-info mt-2"></div>
+                        <pre id="consolidated-ranges" class="bg-light p-3 rounded"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-alert" class="alert alert-danger mt-3" style="display: none;"></div>
+            <div class="loading-spinner text-center mt-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Clipboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+    <script>
+        // Initialize clipboard.js
+        new ClipboardJS('.copy-btn');
+
+        // Add tooltip functionality for copy buttons
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+
+        // Complement Calculator Form Handler
+        document.getElementById('calculator-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('complement-results');
+            const errorDiv = document.getElementById('error-alert');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+
+                const response = await fetch('/calculate-complement', {
+                    method: 'POST',
+                    body: form
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                // Populate subnet table
+                const tbody = document.getElementById('subnets-body');
+                tbody.innerHTML = '';
+                data.subnets.forEach(subnet => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${subnet.cidr}</td>
+                            <td>${subnet.firstIP}</td>
+                            <td>${subnet.lastIP}</td>
+                            <td>${subnet.totalHosts}</td>
+                        </tr>
+                    `;
+                });
+
+                // Populate complementary ranges
+                const rangesList = document.getElementById('ranges-list');
+                rangesList.innerHTML = data.complementary.map(range => range.cidr).join('<br>');
+
+                resultsDiv.style.display = 'block';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        });
+
+        // Consolidator Form Handler
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('consolidate-results');
+            const errorDiv = document.getElementById('error-alert');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+            const downloadOption = document.getElementById('download-option').checked;
+            const ipList = document.getElementById('ip-list').value;
+            const file = document.getElementById('file').files[0];
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+
+                // Clear the form data and add the appropriate input
+                form.delete('file');
+                form.delete('ip-list');
+
+                if (ipList.trim()) {
+                    form.append('ip-list', ipList);
+                } else if (file) {
+                    form.append('file', file);
+                } else {
+                    throw new Error('Please either enter IP addresses or upload a file');
+                }
+
+                const response = await fetch('/consolidate', {
+                    method: 'POST',
+                    body: form
+                });
+
+                if (downloadOption) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'consolidated_ranges.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error);
+
+                    document.getElementById('consolidate-stats').textContent = 
+                        `Original IPs: ${data.original_count} | Consolidated Ranges: ${data.ranges_count}`;
+                    document.getElementById('consolidated-ranges').textContent = 
+                        data.ranges.join('\n');
+                    resultsDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        });
+
+        // IP Calculator Form Handler
+        document.getElementById('network-calculator-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const resultsDiv = document.getElementById('network-results');
+            const errorDiv = document.getElementById('error-alert');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+
+            try {
+                errorDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+
+                const response = await fetch('/calculate-network', {
+                    method: 'POST',
+                    body: form
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                // Update all fields
+                ['address', 'netmask', 'wildcard', 'network', 'hostmin', 'hostmax', 'broadcast'].forEach(field => {
+                    document.getElementById(`${field}-ip`).textContent = data[field].ip;
+                    document.getElementById(`${field}-binary`).textContent = data[field].binary;
+                });
+
+                document.getElementById('netmask-cidr').textContent = data.netmask.cidr;
+                document.getElementById('hosts').textContent = data.hosts;
+                document.getElementById('ip-class').textContent = data.class;
+
+                resultsDiv.style.display = 'block';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        });
+    </script>
+    <footer class="mt-5 py-3 bg-light">
+        <div class="container text-center">
+            <p class="mb-1">Created by Gergo Vadasz</p>
+            <p class="mb-1"><a href="https://gergovadasz.hu" target="_blank" class="text-decoration-none">Check out my tech blog for more</p>
+            <p class="mb-0">
+                <a href="https://www.linkedin.com/in/vadaszgergo/" target="_blank" class="text-decoration-none">
+                    <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                </a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html> 
